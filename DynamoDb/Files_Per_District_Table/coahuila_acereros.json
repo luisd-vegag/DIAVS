@@ -1,0 +1,70 @@
+{
+    "document_key": {
+        "S": "Inventory_Per_District_Coahuila_Acereros"
+    },
+    "validation_rules": {
+        "M": {
+            "columns_count": {
+                "N": "5"
+            },
+            "columns_names": {
+                "L": [
+                    {
+                        "S": "zona"
+                    },
+                    {
+                        "S": "frame"
+                    },
+                    {
+                        "S": "slot"
+                    },
+                    {
+                        "S": "puerto"
+                    },
+                    {
+                        "S": "ing"
+                    },
+                    {
+                        "S": "id_caja_etiqueta"
+                    },
+                    {
+                        "S": "modelo_de_cierre"
+                    },
+                    {
+                        "S": "id_splitter_nombre_de_cierre"
+                    },
+                    {
+                        "S": "nomenclatura"
+                    },
+                    {
+                        "S": "tipo_splitter"
+                    },
+                    {
+                        "S": "latitud"
+                    },
+                    {
+                        "S": "longitud"
+                    },
+                    {
+                        "S": "condiciones_splitter"
+                    },
+                    {
+                        "S": "distribucion"
+                    }
+                ]
+            },
+            "max_rows": {
+                "N": "10000"
+            },
+            "file_extension": {
+                "S": "csv"
+            },
+            "encoding": {
+                "S": "utf-8"
+            },
+            "delimeter": {
+                "S": "|"
+            }
+        }
+    }
+}

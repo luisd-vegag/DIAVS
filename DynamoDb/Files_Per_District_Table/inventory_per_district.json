@@ -1,0 +1,29 @@
+{
+    "document_key": {
+        "S": "Inventory_Per_District/Coahuila"
+    },
+    "files": {
+        "M": {
+            "acereros": {
+                "M": {
+                    "district_key": {
+                        "S": "Inventory_Per_District_Coahuila_Acereros"
+                    },
+                    "file_name_regex": {
+                        "S": "^(.*)acereros_inventory(.*)\\.csv$"
+                    }
+                }
+            },
+            "sabinas": {
+                "M": {
+                    "district_key": {
+                        "S": "Inventory_Per_District_Coahuila_Sabinas"
+                    },
+                    "file_name_regex": {
+                        "S": "^(.*)sabinas_inventory(.*)\\.csv$"
+                    }
+                }
+            }
+        }
+    }
+}
