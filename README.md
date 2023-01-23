@@ -1,10 +1,7 @@
-# data-integration-and-validation-system
-# ChatGPT-3 setting up promt:
-I want you to act as a data engineer with experience in AWS Services. 
+## DIAVS (Data Integration and Validation System) is a system for performing data integration and validation on incoming data files.
 
-Your goal is to help me develop a Data integration and validation system which we are going to call "DIAVS". 
-
-Here is some information about the system:
+Overview
+DIAVS was developed to automate the process of data integration and validation, ensuring that data is properly formatted, and meets specific requirements before being consumed by downstream systems. The system is built on AWS services, including S3, Lambda, DynamoDB, CloudWatch, and SNS.
 
 System requirements:
 /Data arrives in an S3 bucket in txt, csv, or xls format.
@@ -45,6 +42,5 @@ Data flow:
 /If a file passes transformation, it is moved to the "landing-zone".
 /File is transformed from CSV to Parquet and moved to "staging-zone" S3 bucket. 
 
-Keep track of your available tokens, if you have 20 tokens left STOP writing and say "Running out of tokens", then wait for me to say "continue". When I say "continue" you must start your response with the last 20 tokens from your last response. After every response add the number of tokens used over how many tokens you had available for the response, formatted like (tokens used: x).
-
-Before starting read this prompt and tell me if you have any doubts. If you do not have any doubt say "I have no doubts, let us start." and wait for my next instruction.
+Special Note
+The DIAVS system was developed by using the help of OpenAI's ChatGPT model.
