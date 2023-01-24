@@ -5,51 +5,159 @@
     "validation_rules": {
         "M": {
             "columns_count": {
-                "N": "5"
+                "N": "15"
             },
-            "columns_names": {
+            "columns_details": {
                 "L": [
                     {
-                        "S": "zona"
+                        "M": {
+                            "header": {
+                                "S": "zona"
+                            },
+                            "data_type": {
+                                "S": "string"
+                            }
+                        }
                     },
                     {
-                        "S": "frame"
+                        "M": {
+                            "header": {
+                                "S": "frame"
+                            },
+                            "data_type": {
+                                "S": "string"
+                            }
+                        }
                     },
                     {
-                        "S": "slot"
+                        "M": {
+                            "header": {
+                                "S": "slot"
+                            },
+                            "data_type": {
+                                "S": "string"
+                            }
+                        }
                     },
                     {
-                        "S": "puerto"
+                        "M": {
+                            "header": {
+                                "S": "puerto"
+                            },
+                            "data_type": {
+                                "S": "string"
+                            }
+                        }
                     },
                     {
-                        "S": "ing"
+                        "M": {
+                            "header": {
+                                "S": "ing"
+                            },
+                            "data_type": {
+                                "S": "string"
+                            }
+                        }
                     },
                     {
-                        "S": "id_caja_etiqueta"
+                        "M": {
+                            "header": {
+                                "S": "id_caja_etiqueta"
+                            },
+                            "data_type": {
+                                "S": "string"
+                            }
+                        }
                     },
                     {
-                        "S": "modelo_de_cierre"
+                        "M": {
+                            "header": {
+                                "S": "modelo_de_cierre"
+                            },
+                            "data_type": {
+                                "S": "string"
+                            }
+                        }
                     },
                     {
-                        "S": "id_splitter_nombre_de_cierre"
+                        "M": {
+                            "header": {
+                                "S": "id_splitter_nombre_de_cierre"
+                            },
+                            "data_type": {
+                                "S": "string"
+                            }
+                        }
                     },
                     {
-                        "S": "nomenclatura"
+                        "M": {
+                            "header": {
+                                "S": "nomenclatura"
+                            },
+                            "data_type": {
+                                "S": "string"
+                            }
+                        }
                     },
                     {
-                        "S": "tipo_splitter"
+                        "M": {
+                            "header": {
+                                "S": "tipo_splitter"
+                            },
+                            "data_type": {
+                                "S": "string"
+                            }
+                        }
                     },
                     {
-                        "S": "latitud"
+                        "M": {
+                            "header": {
+                                "S": "latitud"
+                            },
+                            "data_type": {
+                                "S": "string"
+                            }
+                        }
                     },
                     {
-                        "S": "longitud"
+                        "M": {
+                            "header": {
+                                "S": "longitud"
+                            },
+                            "data_type": {
+                                "S": "string"
+                            }
+                        }
                     },
                     {
-                        "S": "condiciones_splitter"
+                        "M": {
+                            "header": {
+                                "S": "condiciones_splitter"
+                            },
+                            "data_type": {
+                                "S": "string"
+                            }
+                        }
                     },
                     {
-                        "S": "distribucion"
+                        "M": {
+                            "header": {
+                                "S": "distribucin"
+                            },
+                            "data_type": {
+                                "S": "string"
+                            }
+                        }
+                    },
+                    {
+                        "M": {
+                            "header": {
+                                "S": "fecha"
+                            },
+                            "data_type": {
+                                "S": "string"
+                            }
+                        }
                     }
                 ]
             },
@@ -60,10 +168,23 @@
                 "S": "csv"
             },
             "encoding": {
-                "S": "utf-8"
+                "S": "windows-1252"
             },
-            "delimeter": {
+            "delimiter": {
                 "S": "|"
+            },
+            "date_details": {
+                "M": {
+                    "parameter_date": {
+                        "S": "fecha"
+                    },
+                    "source_date": {
+                        "S": "\\d{8}"
+                    },
+                    "file_date": {
+                        "BOOL": true
+                    }
+                }
             }
         }
     }

@@ -10,7 +10,7 @@
                         "S": "Inventory_Per_District_Coahuila_Acereros"
                     },
                     "file_name_regex": {
-                        "S": "^(.*)acereros_inventory(.*)\\.csv$"
+                        "S": "^(.*)([0-9]{8})_acereros_inventory(.*)\\.csv$"
                     }
                 }
             },

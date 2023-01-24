@@ -2,10 +2,12 @@ import boto3
 import json
 import re
 import os
-
-# import chardet <-- Adding python layer in progress
 import io
 from datetime import datetime
+
+# Packages from layers
+import cchardet
+import pandas as pd
 
 REGION = os.getenv("REGION")
 s3 = boto3.client("s3")
@@ -35,16 +37,17 @@ def validate_file_extension(file_name, expected_extension):
     return False
 
 
-# def validate_file_encoding(file_content, expected_encoding):
-#    result = chardet.detect(file_content)
-#    if result["encoding"] == expected_encoding:
-#        return True
-#    return False
+def validate_file_encoding(file_content, expected_encoding):
+    result = cchardet.detect(file_content)
+    print(f'incoming encoding {result["encoding"]}')
+    if result["encoding"].lower() == expected_encoding:
+        return True
+    return False
 
 
-def normalize_headers(file_content, delimeter):
+def normalize_headers(file_content, delimiter):
     lines = file_content.split("\n")
-    headers = lines[0].strip().split(delimeter)
+    headers = lines[0].strip().split(delimiter)
     normalized_headers = [
         re.sub(r"[^a-zA-Z0-9_ ]", "", header)
         .replace(" ", "_")
@@ -54,43 +57,49 @@ def normalize_headers(file_content, delimeter):
         .lower()
         for header in headers
     ]
-    lines[0] = delimeter.join(normalized_headers)
+    lines[0] = delimiter.join(normalized_headers)
     return "\n".join(lines)
 
 
-def validate_file_number_of_columns(file_content, expected_columns_count, delimeter):
-    columns_count = len(file_content.split("\n")[0].split(delimeter))
+def validate_file_number_of_columns(file_content, expected_columns_count, delimiter):
+    columns_count = len(file_content.split("\n")[0].split(delimiter))
     if columns_count == expected_columns_count:
         return True
     return False
 
 
-def validate_file_columns_names(file_content, expected_columns_names, delimeter):
-    columns_names = file_content.split("\n")[0].strip().split(delimeter)
-    expected_columns_names = [col["S"] for col in expected_columns_names]
-    if columns_names == expected_columns_names:
+def validate_file_columns_names(file_content, columns_details, delimiter):
+    columns_names = file_content.split("\n")[0].strip().split(delimiter)
+    expected_columns_names = [col['header'] for col in columns_details]
+    if all(header in expected_columns_names for header in columns_names):
         return True
     return False
 
+# obj = s3.get_object(Bucket=bucket_name, Key=prefix)
+# file_content = obj["Body"].read().decode(encoding)
 
-def add_date_column(bucket_name, prefix, column_name, delimeter):
-    obj = s3.get_object(Bucket=bucket_name, Key=prefix)
-    file_content = obj["Body"].read()
-    df = pd.read_csv(io.BytesIO(file_content))
-    file_name = prefix.rsplit("/", 1)[-1]
-    date_string = file_name.split("_")[-1].split(".")[0]
-    date = datetime.strptime(date_string, "%Y%m%d").date()
-    df[column_name] = date
+
+def file_content_to_df(file_content, columns_details, delimiter, encoding):
+    dtypes = {}
+    for col in columns_details:
+        column_name = col["header"]
+        column_type = col["data_type"]
+        dtypes[column_name] = column_type
+    df = pd.read_csv(io.BytesIO(bytes(file_content, encoding)),
+                     dtype=dtypes, delimiter=delimiter)
     return df
 
 
-def transform_to_parquet(df, bucket_name, prefix):
-    file_name = prefix.rsplit("/", 1)[-1]
-    parquet_file_name = file_name.split(".")[0] + ".parquet"
-    buffer = io.BytesIO()
-    df.to_parquet(buffer)
-    buffer.seek(0)
-    s3.upload_fileobj(buffer, bucket_name, "staging-zone/" + parquet_file_name)
+def add_date_columns(df, date_details, file_name):
+    if "parameter_date" in date_details:
+        df["parameter_date"] = df[date_details["parameter_date"]]
+    if "source_date" in date_details:
+        source_date = re.search(date_details["source_date"], file_name).group()
+        df["source_date"] = source_date
+    if "file_date" in date_details and date_details["file_date"] == True:
+        df["file_date"] = datetime.now().strftime("%Y-%m-%d")
+    print(df.head(3))
+    return df
 
 
 def lambda_handler(event, context):
@@ -113,37 +122,46 @@ def lambda_handler(event, context):
     if valid_file:
         response = table.get_item(Key={"document_key": district_key})
         district_rules = response.get("Item")
-
+        # print(district_rules["validation_rules"])
         if "file_extension" in district_rules["validation_rules"]:
             extension_status = validate_file_extension(
-                file_name, district_rules["validation_rules"].get("file_extension")
+                file_name, district_rules["validation_rules"].get(
+                    "file_extension")
             )
             print(f"extension_status: {extension_status}")
         obj = s3.get_object(Bucket=bucket_name, Key=prefix)
         file_content = obj["Body"].read()
         encoding = district_rules["validation_rules"].get("encoding")
         if "encoding" in district_rules["validation_rules"] and extension_status:
-            # encoding_status = validate_file_encoding(file_content, encoding)
-            # print(f"encoding_status: {encoding_status}")
-            encoding_status = True
+            encoding_status = validate_file_encoding(file_content, encoding)
+            print(f"encoding_status: {encoding_status}")
         if encoding_status:
-            delimeter = district_rules["validation_rules"].get("delimeter")
+            delimiter = district_rules["validation_rules"].get("delimiter")
             file_content = file_content.decode(encoding)
-            file_content = normalize_headers(file_content, delimeter)
+            file_content = normalize_headers(file_content, delimiter)
             if "columns_count" in district_rules["validation_rules"]:
                 number_of_columns_status = validate_file_number_of_columns(
                     file_content,
                     district_rules["validation_rules"].get("columns_count"),
-                    delimeter,
+                    delimiter,
                 )
                 print(f"number_of_columns_status: {number_of_columns_status}")
-            if "columns_names" in district_rules["columns_names"]:
+
+            if "columns_details" in district_rules["validation_rules"]:
+                columns_details = district_rules["validation_rules"].get(
+                    "columns_details")
                 columns_names_status = validate_file_columns_names(
                     file_content,
-                    district_rules["validation_rules"].get("columns_names"),
-                    delimeter,
+                    columns_details,
+                    delimiter,
                 )
                 print(f"columns_names_status: {columns_names_status}")
+                if "date_details" in district_rules["validation_rules"]:
+                    date_details = district_rules["validation_rules"].get(
+                        "date_details")
+                df = file_content_to_df(
+                    file_content, columns_details, delimiter, encoding)
+                df = add_date_columns(df, date_details, file_name)
 
         sns_topic_name = "_".join(document_key.split("/")).lower()
         topic_arn = get_topic_arn(sns_topic_name)
