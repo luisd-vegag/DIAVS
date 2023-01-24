@@ -84,21 +84,41 @@ def file_content_to_df(file_content, columns_details, delimiter, encoding):
     for col in columns_details:
         column_name = col["header"]
         column_type = col["data_type"]
-        dtypes[column_name] = column_type
+        if column_type == "date":
+            dtypes[column_name] = "string"
+        else:
+            dtypes[column_name] = column_type
     df = pd.read_csv(io.BytesIO(bytes(file_content, encoding)),
                      dtype=dtypes, delimiter=delimiter)
+
+    for col in columns_details:
+        if col["data_type"] == "date" and "date_format" in col:
+            df[col["header"]] = pd.to_datetime(
+                df[col["header"]], format=col["date_format"])
+
     return df
 
 
 def add_date_columns(df, date_details, file_name):
     if "parameter_date" in date_details:
-        df["parameter_date"] = df[date_details["parameter_date"]]
+        df["parameter_date"] = pd.to_datetime(
+            df[date_details["parameter_date"]], format="%Y-%m-%d")
     if "source_date" in date_details:
-        source_date = re.search(date_details["source_date"], file_name).group()
+        source_date = re.search(
+            date_details["source_date"]["date_regex"], file_name).group()
         df["source_date"] = source_date
+        df["source_date"] = pd.to_datetime(
+            df["source_date"], format=date_details["source_date"]["date_format"])
+
+        df["source_date"] = pd.to_datetime(
+            df["source_date"], format="%Y-%m-%d")
+
     if "file_date" in date_details and date_details["file_date"] == True:
-        df["file_date"] = datetime.now().strftime("%Y-%m-%d")
+        now = datetime.now().strftime("%Y-%m-%d")
+        df["file_date"] = pd.to_datetime(now, format="%Y-%m-%d")
+    print(df.info())
     print(df.head(3))
+
     return df
 
 
@@ -118,6 +138,7 @@ def lambda_handler(event, context):
     for _, district_data in district_documents["files"].items():
         if re.match(district_data["file_name_regex"], file_name):
             district_key = district_data["district_key"]
+            print(file_name)
             valid_file = True
     if valid_file:
         response = table.get_item(Key={"document_key": district_key})

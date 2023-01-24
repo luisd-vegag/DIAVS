@@ -155,7 +155,10 @@
                                 "S": "fecha"
                             },
                             "data_type": {
-                                "S": "string"
+                                "S": "date"
+                            },
+                            "date_format": {
+                                "S": "%Y%m%d"
                             }
                         }
                     }
@@ -179,7 +182,14 @@
                         "S": "fecha"
                     },
                     "source_date": {
-                        "S": "\\d{8}"
+                        "M": {
+                            "date_regex": {
+                                "S": "\\d{8}"
+                            },
+                            "date_format": {
+                                "S": "%Y%m%d"
+                            }
+                        }
                     },
                     "file_date": {
                         "BOOL": true
