@@ -3,29 +3,34 @@
 ## Overview 
 DIAVS was developed to automate the process of data integration and validation, ensuring that data is properly formatted, and meets specific requirements before being consumed by downstream systems. The system is built on AWS services, including S3, Lambda, DynamoDB, CloudWatch, and SNS.
 
-## System requirements - Data arrives in an S3 bucket in txt, csv, or xls format.
+## System requirements 
+- Data arrives in an S3 bucket in txt, csv, or xls format.
 - Automatic trigger executes validations and transforms the data based on specific requirements.
 - Data must be in Apache Parquet format and saved into an S3 bucket for consumption by downstream systems.
 
-## Validations DIAVS performs the following validations on incoming data files:
+## Validations 
+DIAVS performs the following validations on incoming data files:
 - File name regex validation - File extension
 - File encoding 
 - File number of columns
 - File common names
 
-## Transformations DIAVS performs the following transformations on incoming data files:
+## Transformations 
+DIAVS performs the following transformations on incoming data files:
 - Add date column called "parameter_date" to the file with the date that comes in the file name. 
 - Add date column called "source_date" to the file with the date that comes in the file name.
 - Add date column called "file_date" to the file with the date from where the file is ingested.
 
-## AWS services DIAVS uses the following AWS services:
+## AWS services 
+DIAVS uses the following AWS services:
 - AWS Lambda to perform data validation and normalization, and use DynamoDB to store the validation and transformation rules. 
 - CloudWatch is used to monitor the pipeline and logs.
 - SNS is used to send notifications on pipeline status. 
 - S3 is used to store the incoming data, intermediate data, and the final transformed data.
 - DynamoDB is used to store the validation rules.
 
-## Bucket structure DIAVS uses the following S3 bucket structure:
+## Bucket structure 
+DIAVS uses the following S3 bucket structure:
 - "error-zone" is used to store files that fail validation or transformation. 
 - "input-raw-zone" is used to store the original, unprocessed data files as they are received.
 - "raw-zone" is used to store the data files after validation and normalization. 
