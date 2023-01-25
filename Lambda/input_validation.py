@@ -17,6 +17,11 @@ table = dynamodb.Table("inventory_per_district")
 
 
 def get_topic_arn(topic_name):
+    """
+    This function retrieves the ARN of a topic with the specified name.
+    It retrieves all the topics available in the SNS service and looks 
+    for the topic with the specified name.
+    """
     response = sns.list_topics()
     topics = response["Topics"]
     next_token = response.get("NextToken", None)
@@ -31,6 +36,11 @@ def get_topic_arn(topic_name):
 
 
 def validate_file_extension(file_name, expected_extension):
+    """
+    This function validates the file extension of a file.
+    It takes the file name and the expected extension as input and
+    returns True if the file extension matches the expected extension.
+    """
     file_extension = file_name.split(".")[-1]
     if file_extension == expected_extension:
         return True
@@ -38,14 +48,23 @@ def validate_file_extension(file_name, expected_extension):
 
 
 def validate_file_encoding(file_content, expected_encoding):
+    """
+    This function validates the encoding of a file.
+    It takes the file content and the expected encoding as input and
+    returns True if the file encoding matches the expected encoding.
+    """
     result = cchardet.detect(file_content)
-    print(f'incoming encoding {result["encoding"]}')
     if result["encoding"].lower() == expected_encoding:
         return True
     return False
 
 
 def normalize_headers(file_content, delimiter):
+    """
+    This function normalizes the headers of a file.
+    It takes the file content and the delimiter as input and
+    returns the file content with the headers normalized.
+    """
     lines = file_content.split("\n")
     headers = lines[0].strip().split(delimiter)
     normalized_headers = [
@@ -62,6 +81,11 @@ def normalize_headers(file_content, delimiter):
 
 
 def validate_file_number_of_columns(file_content, expected_columns_count, delimiter):
+    """
+    This function validates the number of columns in a file.
+    It takes the file content, the expected number of columns and the delimiter as input and
+    returns True if the number of columns in the file matches the expected number of columns.
+    """
     columns_count = len(file_content.split("\n")[0].split(delimiter))
     if columns_count == expected_columns_count:
         return True
@@ -69,17 +93,24 @@ def validate_file_number_of_columns(file_content, expected_columns_count, delimi
 
 
 def validate_file_columns_names(file_content, columns_details, delimiter):
+    """
+    This function validates the names of columns in a file.
+    It takes the file content, the columns details and the delimiter as input and
+    returns True if the names of columns in the file match the expected names of columns.
+    """
     columns_names = file_content.split("\n")[0].strip().split(delimiter)
     expected_columns_names = [col['header'] for col in columns_details]
     if all(header in expected_columns_names for header in columns_names):
         return True
     return False
 
-# obj = s3.get_object(Bucket=bucket_name, Key=prefix)
-# file_content = obj["Body"].read().decode(encoding)
-
 
 def file_content_to_df(file_content, columns_details, delimiter, encoding):
+    """
+    This function converts the content of a file to a pandas dataframe.
+    It takes the file content, the columns details, the delimiter and the encoding as input and
+    returns a pandas dataframe with the data from the file.
+    """
     dtypes = {}
     for col in columns_details:
         column_name = col["header"]
@@ -100,6 +131,11 @@ def file_content_to_df(file_content, columns_details, delimiter, encoding):
 
 
 def add_date_columns(df, date_details, file_name):
+    """
+    This function adds date columns to a pandas dataframe.
+    It takes the dataframe, the date details and the file name as input and
+    returns the dataframe with additional date columns.
+    """
     if "parameter_date" in date_details:
         df["parameter_date"] = pd.to_datetime(
             df[date_details["parameter_date"]], format="%Y-%m-%d")
@@ -109,21 +145,21 @@ def add_date_columns(df, date_details, file_name):
         df["source_date"] = source_date
         df["source_date"] = pd.to_datetime(
             df["source_date"], format=date_details["source_date"]["date_format"])
-
         df["source_date"] = pd.to_datetime(
             df["source_date"], format="%Y-%m-%d")
 
     if "file_date" in date_details and date_details["file_date"] == True:
         now = datetime.now().strftime("%Y-%m-%d")
         df["file_date"] = pd.to_datetime(now, format="%Y-%m-%d")
-    print(df.info())
-    print(df.head(3))
-
     return df
 
 
 def lambda_handler(event, context):
-
+    """
+    This function is the entry point for the Lambda function.
+    It takes the event and the context as input and
+    performs validation and processing on the file in S3.
+    """
     bucket_name = event["Records"][0]["s3"]["bucket"]["name"]
     prefix = event["Records"][0]["s3"]["object"]["key"]
 
@@ -143,7 +179,6 @@ def lambda_handler(event, context):
     if valid_file:
         response = table.get_item(Key={"document_key": district_key})
         district_rules = response.get("Item")
-        # print(district_rules["validation_rules"])
         if "file_extension" in district_rules["validation_rules"]:
             extension_status = validate_file_extension(
                 file_name, district_rules["validation_rules"].get(
