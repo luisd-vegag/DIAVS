@@ -11,6 +11,9 @@
                     },
                     "file_name_regex": {
                         "S": "^(.*)([0-9]{8})_acereros_inventory(.*)\\.csv$"
+                    },
+                    "output_base_file_name": {
+                        "S": "acereros_inventory"
                     }
                 }
             },
@@ -21,6 +24,9 @@
                     },
                     "file_name_regex": {
                         "S": "^(.*)sabinas_inventory(.*)\\.csv$"
+                    },
+                    "output_base_file_name": {
+                        "S": "sabinas_inventory"
                     }
                 }
             }
