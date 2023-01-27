@@ -1,0 +1,16 @@
+FROM python:3.9
+
+# set the working directory
+WORKDIR /app
+
+# copy requirements file
+COPY requirements.txt .
+
+# install dependencies
+RUN pip install -r requirements.txt
+
+# copy the rest of the application code
+COPY . .
+
+# run the tests
+CMD ["pytest"]
