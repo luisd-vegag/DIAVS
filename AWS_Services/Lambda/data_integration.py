@@ -200,10 +200,11 @@ def get_validation_rules(prefix):
 def get_file_extract(input_bucket_name, prefix, file_name, district_rules):
     extension_status = False
     encoding_status = False
+    file_extension = district_rules["validation_rules"].get(
+        "file_extension")
     if "file_extension" in district_rules["validation_rules"]:
         extension_status = validate_file_extension(
-            file_name, district_rules["validation_rules"].get(
-                "file_extension")
+            file_name, file_extension
         )
 
     if extension_status:
@@ -224,12 +225,13 @@ def get_file_extract(input_bucket_name, prefix, file_name, district_rules):
                 file_bytes, encoding)
 
     if encoding_status:
+        record_delimiter = get_record_delimiter(file_extension, encoding)
         max_iterations = 10
         i = 0
         while i < max_iterations:
             buffer.seek(0)
             file_content = buffer.read().decode(encoding)
-            if len(file_content.split('\n')) < 3:
+            if len(file_content.split(record_delimiter)) < 3:
                 i += 1
                 # Append the next bytes
                 bytes_min_range += bytes_delta
@@ -244,8 +246,25 @@ def get_file_extract(input_bucket_name, prefix, file_name, district_rules):
         if buffer.tell() >= 1000000:
             raise Exception("The buffer has reached the maximum size")
 
-        file_extract = file_content.split('\n')[:2]
+        file_extract = file_content.split(record_delimiter)[:2]
         return file_extract
+    else:
+        return None
+
+
+def get_record_delimiter(file_extension, encoding):
+    if file_extension == 'csv':
+        return '\n'
+    elif file_extension == "tsv":
+        return "\t"
+    elif file_extension == 'txt':
+        if encoding == 'utf-8':
+            return '\n'
+        elif encoding == 'utf-16':
+            return '\r\n'
+    # Not sure about this one
+    elif file_extension == 'xls' or file_extension == 'xlsx' or file_extension == 'xlsb' or file_extension == 'xlsm':
+        return '\r\n'
     else:
         return None
 
