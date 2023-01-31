@@ -1,4 +1,4 @@
-FROM python:3.9
+FROM python:3.8
 
 # set the working directory
 WORKDIR /app
@@ -9,8 +9,6 @@ COPY requirements.txt .
 # install dependencies
 RUN pip install -r requirements.txt
 
-# copy the rest of the application code
-COPY . .
+# copy the entire DIAVS directory to /app
+COPY . /app
 
-# run the tests
-CMD ["pytest"]
