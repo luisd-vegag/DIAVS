@@ -76,3 +76,11 @@ def get_object_bodylines(s3_object, offset, encoding):
         lines.append(pending.decode(encoding))
         offset += len(pending)
     return (lines, offset)
+
+
+def importedModuleCheck():
+    print("Imported module")
+
+
+if __name__ == "__main__":
+    importedModuleCheck()

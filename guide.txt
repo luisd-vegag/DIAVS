@@ -1,8 +1,0 @@
-sudo docker system prune -a
-sudo docker ps
-sudo docker build -t diavsimage .
-sudo docker image ls
-sudo docker run -it --rm diavsimage /bin/bash
-
-
-pytest -s test_data_integration.py -v --junit-xml=report.xml --html=./html_report.html --self-contained-html
