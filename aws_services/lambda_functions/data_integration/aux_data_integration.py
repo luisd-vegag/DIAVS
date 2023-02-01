@@ -14,9 +14,7 @@ def validate_file_extension(file_name, expected_extension):
     """
     file_extension = file_name.split(".")[-1]
     if file_extension == expected_extension:
-        print(f"extension_status: {True}")
         return True
-    print(f"extension_status: {False}")
     return False
 
 
@@ -27,6 +25,7 @@ def validate_file_encoding(file_bytes, expected_encoding):
     returns True if the file encoding matches the expected encoding.
     """
     result = cchardet.detect(file_bytes)
+    print(f"Incoming encoding: {result}")
     if result["encoding"].lower() == expected_encoding:
         return True
     return False
@@ -41,7 +40,8 @@ def normalize_headers(file_content, delimiter):
     lines = file_content.split("\n")
     headers = lines[0].strip().split(delimiter)
     normalized_headers = [
-        re.sub(r"[^a-zA-Z0-9_ ]", "", header)
+        re.sub(r"[^a-zA-Z0-9_ -]", "", header)
+        .lstrip()
         .replace(" ", "_")
         .replace("(", "")
         .replace(")", "")
@@ -106,8 +106,8 @@ def add_date_columns(df, date_details, file_name, output_base_file_name):
             now.strftime("%Y-%m-%d"), format="%Y-%m-%d")
         output_base_file_name = output_base_file_name + \
             "_" + now.strftime("%Y%m%d")
-
-    return df, output_base_file_name
+    output_file_name = output_base_file_name
+    return df, output_file_name
 
 
 def get_record_delimiter(file_extension, encoding):
